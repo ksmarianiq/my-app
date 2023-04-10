@@ -1,0 +1,100 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id      Int      @id @default(autoincrement())
+  email   String   @unique
+  password String
+  entreprise Entreprise []
+  etudiant Etudiant []
+
+}
+
+model Entreprise {
+id      Int      @id @default(autoincrement())
+nom     String @unique
+description String
+adresse String
+siteWeb String
+tel String
+offre   Offre   @relation(fields: [offreId], references: [id])
+offreId Int @unique
+user   User   @relation(fields: [userId], references: [id])
+userId Int @unique
+domaine  Domaine   @relation(fields: [domaineId], references: [id])
+domaineId Int @unique
+role  Role   @default(User)
+}
+
+model Etudiant {
+ id      Int      @id @default(autoincrement())
+nom     String @unique
+prenom String
+adresse String
+nEtude String
+user   User   @relation(fields: [userId], references: [id])
+userId Int @unique 
+role  Role   @default(User)
+demande   Demande   @relation(fields: [demandeId], references: [id])
+demandeId Int @unique
+}
+
+model Demande {
+  id      Int      @id @default(autoincrement())
+  nom     String @unique
+  lettreMotiv String  @db.VarChar(255)
+  cv String  @db.VarChar(255)
+  status Status @default(REFUSE)
+  etudiant Etudiant []
+  offre          Offre[]   @relation("OffreDemande")
+
+}
+
+enum Role {
+  User
+  Admin
+}
+
+enum Status {
+  ACCEPT
+  REFUSE
+}
+
+model Offre {
+    id      Int      @id @default(autoincrement())
+     nom     String @unique
+    description String
+    titre String
+    date_deb DateTime
+    date_fin DateTime
+    competence   Competence   @relation(fields: [competenceId], references: [id])
+    competenceId Int @unique
+    entreprise  Entreprise[] 
+     demandes       Demande[] @relation("OffreDemande")
+}
+
+model Domaine {
+   id      Int      @id @default(autoincrement())
+   nom_domaine String @unique
+   entreprise Entreprise []
+}
+
+model Competence {
+    id      Int      @id @default(autoincrement())
+    nom_competence String @unique
+    offre Offre []
+}
+
+
+
+
+
